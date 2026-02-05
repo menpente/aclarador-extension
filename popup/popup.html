@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aclarador</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Aclarador</h1>
+      <p class="subtitle">Análisis de Lenguaje Claro</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- API Key Section -->
+    <div class="controls">
+      <div class="control-group api-key-group">
+        <label for="apiKey">Clave API de Groq:</label>
+        <div class="input-wrapper">
+          <input type="password" id="apiKey" placeholder="Ingresa tu clave API de Groq">
+          <span class="toggle-password" id="togglePassword">Mostrar</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Límite de texto (caracteres):</label>
+        <div class="char-limit-group">
+          <input type="number" id="charLimit" value="3000" min="500" max="50000" step="500">
+          <span class="char-limit-hint">Textos largos se truncan para la API</span>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-primary" id="analyzeBtn">
+          Analizar Página Activa
+        </button>
+      </div>
+    </div>
+
+    <!-- Page Info -->
+    <div id="pageInfo" class="page-info" style="display: none;">
+      <div class="page-title" id="pageTitle"></div>
+      <div class="page-url" id="pageUrl"></div>
+      <div class="page-stats" id="pageStats"></div>
+    </div>
+
+    <!-- Progress Section -->
+    <div id="progressSection" class="progress-section" style="display: none;">
+      <h2>Progreso del Análisis</h2>
+      <div class="agent-steps">
+        <div class="agent-step" data-agent="analyzer">
+          <span class="step-indicator"></span>
+          <span class="step-label">Analizador</span>
+        </div>
+        <div class="agent-step" data-agent="rewriter">
+          <span class="step-indicator"></span>
+          <span class="step-label">Reescritor (IA)</span>
+        </div>
+        <div class="agent-step" data-agent="grammar">
+          <span class="step-indicator"></span>
+          <span class="step-label">Gramática</span>
+        </div>
+        <div class="agent-step" data-agent="style">
+          <span class="step-indicator"></span>
+          <span class="step-label">Estilo</span>
+        </div>
+        <div class="agent-step" data-agent="seo">
+          <span class="step-indicator"></span>
+          <span class="step-label">SEO</span>
+        </div>
+        <div class="agent-step" data-agent="validator">
+          <span class="step-indicator"></span>
+          <span class="step-label">Validador</span>
+        </div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressBar"></div>
+      </div>
+      <div class="progress-status" id="progressStatus">Iniciando...</div>
+    </div>
+
+    <!-- Error Section -->
+    <div id="errorSection" class="alert alert-error" style="display: none;">
+      <strong>Error:</strong> <span id="errorMessage"></span>
+    </div>
+
+    <!-- Results Section -->
+    <div id="resultsSection" style="display: none;">
+      <!-- Scores -->
+      <div class="scores">
+        <div class="score-card">
+          <div class="score-value" id="qualityScore">--</div>
+          <div class="score-label">Calidad</div>
+        </div>
+        <div class="score-card">
+          <div class="score-value" id="readabilityScore">--</div>
+          <div class="score-label">Legibilidad</div>
+        </div>
+        <div class="score-card score-card-severity" id="severityCard">
+          <div class="score-value" id="severityScore">--</div>
+          <div class="score-label">Severidad</div>
+        </div>
+      </div>
+
+      <!-- Text Comparison -->
+      <div class="result-card">
+        <div class="result-header">
+          <h2 class="result-title">Comparación de Texto</h2>
+          <button class="btn-secondary btn-small" id="copyImprovedBtn">Copiar Mejorado</button>
+        </div>
+        <div class="tabs">
+          <button class="tab active" data-tab="original">Original</button>
+          <button class="tab" data-tab="improved">Mejorado</button>
+          <button class="tab" data-tab="sidebyside">Lado a Lado</button>
+        </div>
+        <div class="tab-content active" id="tab-original">
+          <div class="text-content" id="originalText"></div>
+        </div>
+        <div class="tab-content" id="tab-improved">
+          <div class="text-content" id="improvedText"></div>
+        </div>
+        <div class="tab-content" id="tab-sidebyside">
+          <div class="text-comparison">
+            <div class="text-box">
+              <h3>Original</h3>
+              <div class="text-content" id="sideOriginal"></div>
+            </div>
+            <div class="text-box">
+              <h3>Mejorado</h3>
+              <div class="text-content" id="sideImproved"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Issues / Improvements -->
+      <div class="result-card">
+        <h2 class="result-title">Mejoras e Incidencias</h2>
+        <div id="improvementsList"></div>
+      </div>
+
+      <!-- Compliance -->
+      <div class="result-card">
+        <h2 class="result-title">Cumplimiento</h2>
+        <div id="complianceList"></div>
+      </div>
+
+      <!-- SEO -->
+      <div class="result-card" id="seoCard" style="display: none;">
+        <h2 class="result-title">Recomendaciones SEO</h2>
+        <div id="seoList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../lib/agents.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
